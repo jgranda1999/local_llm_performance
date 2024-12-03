@@ -4,9 +4,9 @@ import socket
 from dnslib import DNSRecord
 
 # Server details
-dns_server_ip = "127.0.0.1"  # Replace with your DNS server's IP
-dns_server_port = 8053       # Replace with your DNS server's port
-domain = "phyona.local."     # Domain to query
+dns_server_ip = "127.0.0.1"  
+dns_server_port = 8053       
+domain = "phyona.local."     
 
 # Create a DNS query
 query = DNSRecord.question(domain)
