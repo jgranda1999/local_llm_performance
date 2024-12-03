@@ -6,11 +6,11 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 DNS_RECORDS = {
-    "phyona.local.":"127.0.0.1",
-    "jonathan.local":"ip_jonathan"
+    "llm.local.": "192.168.1.100",    # Maps to the load balancer's IP
+    "server1.local.": "192.168.1.101", # Maps to LLM Server 1
+    "server2.local.": "192.168.1.102", # Maps to LLM Server 2
+    "server3.local.": "192.168.1.103"  # Maps to LLM Server 3
 }
-
-
 
 # Create a custom request handler by subclassing BaseRequestHandler
 class DNSHandler(BaseRequestHandler):
@@ -44,5 +44,5 @@ if __name__ == "__main__":
     print("Starting DNS server on port 53...")  
 
     # Create a UDP server that listens on all network interfaces (0.0.0.0) at port 8053 (default DNS port)
-    with UDPServer(("127.0.0.1", 8053), DNSHandler) as server:
+    with UDPServer(("0.0.0.0", 53), DNSHandler) as server:
         server.serve_forever()  # Keep the server running indefinitely
