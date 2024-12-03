@@ -1,0 +1,29 @@
+(llama3) pschrad2@DESKTOP-3VK790L:~/LLM/local_llm_performance$ python3 Offloader/DNS_client.py 
+Sending query for phyona.local. to 127.0.0.1:8053
+Received DNS response:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 51690
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+;; QUESTION SECTION:
+;phyona.local.                  IN      A
+;; ANSWER SECTION:
+phyona.local.           0       IN      A       127.0.0.1
+DNS query throughput: 0.002769 seconds
+Resolved IP: 127.0.0.1
+Connecting to local server at http://127.0.0.1:8000
+Local server response: 404
+Local server latency: 0.002911 seconds
+(llama3) pschrad2@DESKTOP-3VK790L:~/LLM/local_llm_performance$ python3 Offloader/DNS_client.py 
+Sending query for phyona.local. to 127.0.0.1:8053
+Received DNS response:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 31132
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+;; QUESTION SECTION:
+;phyona.local.                  IN      A
+;; ANSWER SECTION:
+phyona.local.           0       IN      A       127.0.0.1
+DNS query throughput: 0.000630 seconds
+Resolved IP: 127.0.0.1
+Connecting to local server at http://127.0.0.1:8000
+Local server response: 404
+Local server latency: 0.002919 seconds
+(llama3) pschrad2@DESKTOP-3VK790L:~/LLM/local_llm_performance$ 
