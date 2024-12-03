@@ -1,0 +1,18 @@
+
+
+(llama3) pschrad2@DESKTOP-3VK790L:~/LLM/local_llm_performance$ uvicorn local_llm_server:app --host 0.0.0.0 --port 8000
+You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama.LlamaTokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message
+/home/pschrad2/miniconda3/envs/llama3/lib/python3.10/site-packages/torch/cuda/__init__.py:716: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+Some parameters are on the meta device because they were offloaded to the disk and cpu.
+INFO:     Started server process [99306]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:51392 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49658 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43246 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43246 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:37496 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:40278 - "GET / HTTP/1.1" 404 Not Found
+
