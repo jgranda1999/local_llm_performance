@@ -1,10 +1,12 @@
 
 from dnslib import DNSRecord, RR, QTYPE, A
 from socketserver import UDPServer, BaseRequestHandler
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 DNS_RECORDS = {
-    "phyona.local.":"192.168.192.1",
-    "jonathan.local.":"ip_jonathan"
+    "phyona.local.":"127.0.0.1",
+    "jonathan.local":"ip_jonathan"
 }
 
 
@@ -14,6 +16,7 @@ class DNSHandler(BaseRequestHandler):
     def handle(self):
         # The `self.request` attribute contains the client data and the socket
         data, socket = self.request
+        logging.debug(f"Received query: {data} from {self.client_address}")
 
         # Parse the incoming DNS request packet
         request = DNSRecord.parse(data)
@@ -40,5 +43,5 @@ if __name__ == "__main__":
     print("Starting DNS server on port 53...")  
 
     # Create a UDP server that listens on all network interfaces (0.0.0.0) at port 8053 (default DNS port)
-    with UDPServer(("0.0.0.0", 8053), DNSHandler) as server:
+    with UDPServer(("127.0.0.1", 8053), DNSHandler) as server:
         server.serve_forever()  # Keep the server running indefinitely
