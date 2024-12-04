@@ -1,4 +1,5 @@
 import requests
+import time
 
 # Define server URL
 server_url = "http://localhost:8000/generate"
@@ -17,17 +18,32 @@ payload = {
     "truncation": True
 }
 
-# Send POST request
+# Measure latency for a single request
+start_time = time.time()
 response = requests.post(server_url, json=payload)
+end_time = time.time()
+
+# Calculate latency
+latency = end_time - start_time
 
 # Print the response
 if response.status_code == 200:
-    # Fetch the 'responses' from the JSON
-    generated_text = response.json().get("responses")
-    # Check if 'responses' is not empty and print
-    if generated_text:
-        print(generated_text[0])  # Directly print the generated text without any additional formatting
-    else:
-        print("No text generated.")
+    print("Generated Text:", response.json()["responses"])
 else:
     print("Error:", response.status_code, response.text)
+    print(f"Latency: {latency:.6f} seconds")
+
+# Measure throughput (requests per second)
+num_requests = 10  # Number of requests to send for throughput test
+throughput_start_time = time.time()
+
+for _ in range(num_requests):
+    response = requests.post(server_url, json=payload)
+
+throughput_end_time = time.time()
+
+# Calculate throughput
+total_time = throughput_end_time - throughput_start_time
+throughput = num_requests / total_time
+
+print(f"Throughput: {throughput:.2f} requests/second over {num_requests} requests")

@@ -15,7 +15,6 @@ payload = {
     "num_return_sequences": 1
 }
 
-
 # Create a DNS query
 query = DNSRecord.question(domain)
 
@@ -28,8 +27,6 @@ dns_start_time = time.time()
 # Send the query to the DNS server
 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as client_socket:
     client_socket.sendto(query.pack(), (dns_server_ip, dns_server_port))
-    
-    # Receive the response
     response, _ = client_socket.recvfrom(4096)
     dns_end_time = time.time()
 
@@ -54,26 +51,39 @@ dns_time_taken = dns_end_time - dns_start_time
 print(f"DNS query throughput: {dns_time_taken:.6f} seconds")
 print(f"Resolved IP: {resolved_ip}")
 
-# Measure latency for interacting with the local server
+# Measure latency and throughput for the local LLM server
 local_server_url = f"http://{resolved_ip}:8000/generate"
+
 try:
     print(f"Connecting to local server at {local_server_url}")
     
-    # Start timing for local server interaction
+    # Measure latency for a single request
     local_start_time = time.time()
-    
     response = requests.post(local_server_url, json=payload)
-
-
     local_end_time = time.time()
-    
-    llm_time_taken = local_end_time - local_start_time
+    llm_latency = local_end_time - local_start_time
 
-     # Print the LLM server's response and latency
+    # Print latency and single response
     if response.status_code == 200:
         print("Generated Text:", response.json()["responses"])
-        print(f"LLM server latency: {llm_time_taken:.6f} seconds")
+        print(f"LLM server latency: {llm_latency:.6f} seconds")
     else:
         print("Error:", response.status_code, response.text)
+        print(f"LLM server latency: {llm_latency:.6f} seconds")
+
+    # Throughput test (multiple requests)
+    num_requests = 10
+    throughput_start_time = time.time()
+
+    for _ in range(num_requests):
+        response = requests.post(local_server_url, json=payload)
+
+    throughput_end_time = time.time()
+    total_time = throughput_end_time - throughput_start_time
+
+    # Calculate throughput
+    throughput = num_requests / total_time
+    print(f"Throughput: {throughput:.2f} requests/second over {num_requests} requests")
+
 except Exception as e:
     print(f"Error connecting to local server: {e}")

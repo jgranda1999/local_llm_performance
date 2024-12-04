@@ -1,47 +1,59 @@
-
 from dnslib import DNSRecord, RR, QTYPE, A
 from socketserver import UDPServer, BaseRequestHandler
+from queue import Queue
+import threading
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
 
 DNS_RECORDS = {
-    "phyona.local.":"127.0.0.1",
-    "jonathan.local":"ip_jonathan"
+    "phyona.local.": "127.0.0.1",
+    "jonathan.local": "172.26.127.94"
 }
 
+# Queue to store incoming requests
+request_queue = Queue()
 
-
-# Create a custom request handler by subclassing BaseRequestHandler
+# Create a custom request handler
 class DNSHandler(BaseRequestHandler):
     def handle(self):
-        # The `self.request` attribute contains the client data and the socket
         data, socket = self.request
         logging.debug(f"Received query: {data} from {self.client_address}")
 
-        # Parse the incoming DNS request packet
+        # Add request to the queue
+        request_queue.put((data, socket, self.client_address))
+
+
+# Worker function to process DNS requests from the queue
+def process_dns_requests():
+    while True:
+        # Get the next request from the queue
+        data, socket, client_address = request_queue.get()
+
+        # Parse the incoming DNS request
         request = DNSRecord.parse(data)
-
-        # Extract the queried domain name from the DNS request
         queried_domain = str(request.q.qname)
-
-        # Extract the query type (e.g., 'A' for Address record) from the request
         qtype = QTYPE[request.q.qtype]
 
-        # Prepare a DNS response by copying the original request
+        # Prepare a DNS response
         reply = request.reply()
-
-        # Check if the queried domain exists in our DNS records and is an A (Address) query
         if queried_domain in DNS_RECORDS and qtype == "A":
-            # Add an answer to the DNS response with the resolved IP address
             reply.add_answer(RR(queried_domain, QTYPE.A, rdata=A(DNS_RECORDS[queried_domain])))
-        
-        # Send the constructed DNS response back to the client
-        socket.sendto(reply.pack(), self.client_address)
 
-# Start the DNS server
+        # Send the response back to the client
+        socket.sendto(reply.pack(), client_address)
+        logging.debug(f"Sent response for {queried_domain} to {client_address}")
+
+        # Mark the task as done
+        request_queue.task_done()
+
+
 if __name__ == "__main__":
-    print("Starting DNS server on port 53...")  
+    print("Starting DNS server on port 8053...")
 
-    # Create a UDP server that listens on all network interfaces (0.0.0.0) at port 8053 (default DNS port)
-    with UDPServer(("127.0.0.1", 8053), DNSHandler) as server:
-        server.serve_forever()  # Keep the server running indefinitely
+    # Start a worker thread to process requests
+    threading.Thread(target=process_dns_requests, daemon=True).start()
+
+    # Create a UDP server that listens on all interfaces
+    with UDPServer(("0.0.0.0", 8053), DNSHandler) as server:
+        server.serve_forever()

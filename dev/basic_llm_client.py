@@ -4,7 +4,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 # Load model and tokenizer
 model_name = "openlm-research/open_llama_3b"
 tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
-offload_folder = r"D:\Offloader"
+offload_folder = r"C:\Offloader"
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
     device_map="auto",
