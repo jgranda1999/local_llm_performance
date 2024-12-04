@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 DNS_RECORDS = {
     "phyona.local.":"127.0.0.1",
-    "jonathan.local":"ip_jonathan"
+    "jonathan.local":"127.0.0.1"
 }
 
 
