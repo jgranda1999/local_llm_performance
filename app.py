@@ -1,9 +1,13 @@
 import asyncio
 import signal
 import sys
+import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+
+# Set Hugging Face Transformers cache directory to use Disk D:
+os.environ["TRANSFORMERS_CACHE"] = r"D:\huggingface_cache"
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -11,12 +15,18 @@ app = FastAPI()
 # Load model and tokenizer
 model_name = "openlm-research/open_llama_3b"
 tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
+
+# Set the offload folder to use Disk D:
 offload_folder = r"D:\Offloader"
+
+# Load the model with explicit device map and offload folder
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    device_map="auto",
-    offload_folder=offload_folder
+    device_map="auto",          # Let the model decide CPU/GPU usage automatically
+    offload_folder=offload_folder # Offloading to D: to avoid C: overload
 )
+
+# Initialize pipeline
 pipe = pipeline("text-generation", model=model, tokenizer=tokenizer)
 
 # Define request model
