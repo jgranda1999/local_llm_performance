@@ -1,7 +1,7 @@
 import requests
 
 # Define server URL
-server_url = "http://localhost:8000/generate"
+server_url = "http://localhost:8003/generate"
 
 # Define request payload
 payload = {

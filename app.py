@@ -16,8 +16,6 @@ API_KEY =  ":)"
 MODEL = "gpt-4o-mini"
 API_URL = "https://api.openai.com/v1/chat/completions"
 
-
-
 # Define health check endpoint
 @app.get("/health", summary="Health Check")
 async def health_check():
@@ -60,4 +58,4 @@ def graceful_shutdown(signum, frame):
 signal.signal(signal.SIGINT, graceful_shutdown)
 
 # You can now run the app with Uvicorn:
-# uvicorn app:app --host 0.0.0.0 --port 8000
+# uvicorn app:app --host 127.0.0.1 --port 8001
