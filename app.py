@@ -1,56 +1,55 @@
 import asyncio
 import signal
 import sys
+import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+import openai
+import json
+import requests
 
 # Initialize FastAPI app
 app = FastAPI()
 
-# Load model and tokenizer
-model_name = "openlm-research/open_llama_3b"
-tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
-offload_folder = r"D:\Offloader"
-model = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    device_map="auto",
-    offload_folder=offload_folder
-)
-pipe = pipeline("text-generation", model=model, tokenizer=tokenizer)
+# Set OpenAI API Key (Make sure to set this securely in production)
+API_KEY =  ":)"
+MODEL = "gpt-4o-mini"
+API_URL = "https://api.openai.com/v1/chat/completions"
 
-# Define request model
-class TextGenerationRequest(BaseModel):
-    prompt: str
-    max_length: int = 500
-    do_sample: bool = True
-    num_return_sequences: int = 1
-    truncation: bool = True
+
 
 # Define health check endpoint
 @app.get("/health", summary="Health Check")
 async def health_check():
     return {"status": "healthy"}
 
-# Define text generation endpoint
+class TextGenerationRequest(BaseModel):
+    prompt: str
+
 @app.post("/generate", summary="Generate Text")
 async def generate_text(request: TextGenerationRequest):
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {API_KEY}"
+    }
+
+    data = {
+        "model": MODEL,
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant. Answer my questions."},
+            {"role": "user", "content": request.prompt}
+        ]
+    }
     try:
-        # Run blocking pipeline call in a separate thread to avoid blocking event loop
-        loop = asyncio.get_event_loop()
-        response = await loop.run_in_executor(
-            None,
-            lambda: pipe(
-                request.prompt,
-                max_length=request.max_length,
-                do_sample=request.do_sample,
-                num_return_sequences=request.num_return_sequences,
-                truncation=request.truncation
-            )
-        )
-        return {"responses": [r['generated_text'] for r in response]}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        response = requests.post(API_URL, headers=headers, data=json.dumps(data))
+        response.raise_for_status()
+        completion = response.json()
+
+        ai_response = completion['choices'][0]['message']['content']
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+
+    return {"response": ai_response}
 
 # Add signal handling for graceful shutdown
 def graceful_shutdown(signum, frame):
